@@ -61,7 +61,7 @@ class BaseTestCRUD:
         self.test_object = self.get_object()
         self.obj = self.test_object.obj
         self.obj.save()
-        self.test_user = UserFixture()
+        self.test_user = UserFixture(self.obj.owner.namespace)
         self.test_auth_header = AuthHeader(self.test_user)
         self.auth_header = self.test_auth_header.get(client)
         self.namespace = self.auth_header['X-Test-Namespace']
@@ -242,19 +242,7 @@ class BaseTestCRUD:
         for u in [user1, user2]:
             data = self.get_create_data()
 
-            # TODO: fix this
-            # Dirty hack to make testing data namespaced.
-            organization_data = {
-                'name': 'Test organization',
-                'namespace': 'testorg',
-            }
-            response = self.client.post(
-                url_for('api.organization_create'),
-                data=json.dumps(organization_data),
-                headers=u.auth_header,
-                content_type='application/json',
-            )
-            organization_ref = 'Organization:{}'.format(response.json['id'])
+            organization_ref = 'Organization:{}'.format(u.obj.organization.id)
             profile = faker.Faker().simple_profile()
             owner_data = {
                 'username': profile['username'],

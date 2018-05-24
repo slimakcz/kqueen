@@ -650,8 +650,9 @@ class Model:
                     if getattr(v, field) == field_object.value:
                         return False, 'Field "{name}" should be unique'.format(name=field)
 
-            if field_object.value and not field_object.validate():
-                return False, 'Field {} validation failed'.format(field)
+            if field_object.value is not None:
+                if not field_object.validate():
+                    return False, 'Field {} validation failed'.format(field)
 
         return True, None
 
